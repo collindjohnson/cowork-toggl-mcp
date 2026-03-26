@@ -811,6 +811,11 @@ async function runHTTP(): Promise<void> {
 
   // MCP endpoint
   app.post("/mcp", async (req, res) => {
+    // Normalize Accept header — some MCP clients omit text/event-stream
+    const accept = (req.headers.accept ?? "") as string;
+    if (!accept.includes("text/event-stream")) {
+      req.headers.accept = "application/json, text/event-stream";
+    }
     const transport = new StreamableHTTPServerTransport({
       sessionIdGenerator: undefined,
       enableJsonResponse: true,
